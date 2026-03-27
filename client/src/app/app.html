@@ -1,0 +1,14 @@
+<h1 class = "text-3xl text-red-500 font-bold">{{title}}</h1>
+
+<ul>
+  @for (member of members(); track member.id) {
+    <li>
+      <strong>User:</strong> {{member.id}} - 
+      <strong>Display Name:</strong> {{member.displayName}}
+    </li>
+  } @empty {
+    <li>Loading members...</li>
+  }
+</ul>
+
+<button class="btn btn-primary">Primary</button>
