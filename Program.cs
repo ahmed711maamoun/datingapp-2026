@@ -1,9 +1,13 @@
+using System.Text;
 using API.Data;
+using API.Interfaces;
+using API.Service;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.IdentityModel.Tokens;
 
 var builder = WebApplication.CreateBuilder(args);
 
-// --- 1. SERVICES SECTION (Adding tools to the container) ---
 
 builder.Services.AddControllers();
 
@@ -13,19 +17,30 @@ builder.Services.AddDbContext<AppDbContext>(opt =>
     opt.UseSqlite(builder.Configuration.GetConnectionString("DefaultConnection"));
 });
 
-// Add CORS Service (Neil does this around Video 23)
 builder.Services.AddCors();
-
+builder.Services.AddScoped< ITokenService, TokenService>();
+builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
+        .AddJwtBearer(options =>
+        {
+          var tokenkey = builder.Configuration["TokenKey"] 
+                    ?? throw new Exception("Token key not found - program.cs");
+            options.TokenValidationParameters = new TokenValidationParameters
+            {
+                ValidateIssuerSigningKey = true,
+                IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(tokenkey)),
+                ValidateIssuer = false,
+                ValidateAudience = false
+            };    
+        }
+        );
 var app = builder.Build();
 
-// --- 2. MIDDLEWARE SECTION (The order of these lines is critical!) ---
-
-// Configure the HTTP request pipeline.
-
-// Add the CORS Middleware BEFORE MapControllers
 app.UseCors(x => x.AllowAnyHeader()
                   .AllowAnyMethod()
                   .WithOrigins("http://localhost:4200", "https://localhost:4200"));
+
+app.UseAuthentication();
+app.UseAuthorization();
 
 app.MapControllers();
 
