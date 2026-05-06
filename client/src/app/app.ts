@@ -8,7 +8,7 @@ import { lastValueFrom } from 'rxjs';
   standalone: false, 
   styleUrl: './app.css'
 })
-export class App implements OnInit {
+export class AppComponent implements OnInit {
   private http = inject(HttpClient);
   title = 'Dating App';
   protected members = signal<any>([]); 
