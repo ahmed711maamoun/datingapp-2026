@@ -10,8 +10,9 @@
       "projectType": "application",
       "schematics": {
         "@schematics/angular:component": {
+          "standalone": true,  
           "skipTests": true,
-          "path": "src"
+          "path": "src/app"
         },
         "@schematics/angular:directive": {
           "standalone": false

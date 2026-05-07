@@ -1,25 +1,29 @@
 import { Component, OnInit, inject, signal } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
-import { CommonModule } from '@angular/common';
-import { Nav } from "../layout/nav/nav";
-
+import { CommonModule } from '@angular/common'; 
+import { Nav } from './nav/nav'; 
 
 @Component({
   selector: 'app-root',
   standalone: true,
   templateUrl: './app.html',
   styleUrl: './app.css',
-  imports: [Nav]
+  imports: [Nav, CommonModule] 
 })
 export class AppComponent implements OnInit {
   http = inject(HttpClient);
   title = 'Dating App';
+  // Best practice: Initializing as an empty array []
   members = signal<any>([]);
 
   ngOnInit(): void {
-    this.http.get('https://localhost:5001/api/users').subscribe({
-      next: response => this.members.set(response),
-      error: error => console.log(error)
+    // FIX: Changed 'users' to 'members' to match your MembersController
+    this.http.get('https://localhost:5001/api/members').subscribe({
+      next: response => {
+        this.members.set(response);
+        console.log('Members loaded:', response); // Good for debugging!
+      },
+      error: error => console.log('API Error:', error)
     });
   }
 }
