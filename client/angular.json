@@ -14,6 +14,10 @@
           "skipTests": true,
           "path": "src/app"
         },
+        "@schematics/angular:service": {
+          "skipTests": true,
+          "path": "src/core/services"
+        },
         "@schematics/angular:directive": {
           "standalone": false
         },

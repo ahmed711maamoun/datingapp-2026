@@ -1,32 +1,42 @@
-import { Component, inject, OnInit, signal } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
+import { Component, inject, OnInit, signal } from '@angular/core';
 import { lastValueFrom } from 'rxjs';
-// ADD THIS LINE:
-import { Nav } from './nav/nav'; 
+import { Nav } from "../app/nav/nav";
+import { AccountService } from '../core/services/account-service';
+import { Home } from "../app/features/home/home";
+import { User } from '../app/types/user';
 
 @Component({
   selector: 'app-root',
+  imports: [Nav, Home],
   templateUrl: './app.html',
-  standalone: true,
-  imports: [Nav], 
   styleUrl: './app.css'
 })
-export class AppComponent implements OnInit {
+export class App implements OnInit {
+  private accountService = inject(AccountService);
   private http = inject(HttpClient);
-  title = 'Dating App';
-  protected members = signal<any[]>([]); // Best practice: add the array type []
+  protected title = 'Dating app';
+  protected members = signal<User[]>([])
 
-  async ngOnInit(): Promise<void> {
+  async ngOnInit() {
+    this.members.set(await this.getMembers());
+    this.setCurrentUser();
+  }
+
+  setCurrentUser() {
+    const userString = localStorage.getItem('user');
+    if (!userString) return;
+    const user = JSON.parse(userString);
+    this.accountService.currentUser.set(user);
+  }
+
+  async getMembers() {
     try {
-      const data = await this.getmembers();
-      this.members.set(data);
+      return lastValueFrom(this.http.get<User[]>('https://localhost:5001/api/members'));
     } catch (error) {
-      console.error('Failed to load members', error);
+      console.log(error);
+      throw error;
     }
   }
 
-  async getmembers() {
-    return await lastValueFrom(this.http.get<any[]>('https://localhost:5001/api/users')); 
-    // NOTE: Check your API URL. Neil usually uses /api/users in Section 4.
-  }
 }
